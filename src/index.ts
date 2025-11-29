@@ -104,7 +104,7 @@ const EnvSafe = (userOptions: PluginOptions = {}): Plugin => {
 			if (id.includes("node_modules") || !/\.[jt]sx?|vue$/.test(id))
 				return null;
 
-			// 2. Smart check: Ensure it's not inside a comment or string.
+			// Smart check: Ensure it's not inside a comment or string.
 			// This prevents expensive AST parsing for files like:
 			// console.log("Don't use import.meta.env directly")
 			// Group 1: Single line comments

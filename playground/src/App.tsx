@@ -2,14 +2,15 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
-
+import { getSecretKey } from "./hello";
 import TestComponent from "./TestComponent";
 
 function App() {
 	const [count, setCount] = useState(0);
 
-	const name = import.meta.env.VITE_HOSTNAME;
-	console.log("Hostname from env:", name);
+	const name = "import.meta.env.VITE_HOSTNAME";
+	const secretKey = getSecretKey();
+	console.log("Hostname from env", secretKey);
 
 	return (
 		<>
