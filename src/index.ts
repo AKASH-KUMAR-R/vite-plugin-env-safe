@@ -1,7 +1,10 @@
-import { type Plugin } from "vite";
+import { type Plugin, loadEnv } from "vite";
+import { parse } from "@babel/parser";
+import { walk } from "estree-walker";
 
 const EnvSafe = (): Plugin => {
-	const usedEnvVars = new Set<string>();
+	const checkedEnvVars = new Set<string>();
+
 	let definedEnvVars: Record<string, any> = {};
 
 	return {
@@ -9,42 +12,68 @@ const EnvSafe = (): Plugin => {
 		enforce: "pre",
 
 		configResolved(config) {
-			definedEnvVars = config.env;
+			definedEnvVars = loadEnv(
+				config.mode,
+				config.envDir || process.cwd(),
+				""
+			);
 			console.debug("Config resolved");
 		},
 
 		transform(code, id) {
-			if (id.includes("node_modules")) {
+			if (id.includes("node_modules") || !/\.[jt]sx?|vue$/.test(id)) {
 				return;
 			}
 
-			const regex = /import\.meta\.env\.([a-zA-Z0-9_]+)/g;
+			let ast;
 
-			let match;
-
-			console.debug(`Scanning file for env vars: ${id}`);
-			while ((match = regex.exec(code)) !== null && match[1]) {
-				console.debug(
-					`Found usage of env var: ${match[1]} in file: ${id}`
-				);
-				usedEnvVars.add(match[1]);
+			try {
+				ast = parse(code, {
+					sourceType: "module",
+					plugins: ["typescript", "jsx", "classProperties"],
+				});
+			} catch (err) {
+				return null;
 			}
 
-			const missing = [...usedEnvVars].filter(
-				(v) => !(v in definedEnvVars)
-			);
+			walk(ast as any, {
+				enter(node: any) {
+					if (node.type === "MemberExpression") {
+						const object = node.object;
+						const property = node.property;
 
-			console.debug("Used env vars:", [...usedEnvVars]);
+						if (
+							object.type === "MemberExpression" &&
+							object.object.type === "MetaProperty" &&
+							object.object.property.name === "meta" &&
+							object.property.name === "env" &&
+							property.type === "Identifier"
+						) {
+							const varName = property.name;
 
-			if (missing.length > 0) {
-				console.error("[ERROR]: Some env variables are missing");
+							if (
+								[
+									"MODE",
+									"BASE_URL",
+									"PROD",
+									"DEV",
+									"SSR",
+								].includes(varName)
+							)
+								return;
+							if (checkedEnvVars.has(varName)) return;
+							if (varName in definedEnvVars) {
+								checkedEnvVars.add(varName);
+							} else {
+								const msg = `❌ [EnvSafe] Missing Env Var: "${varName}" in ${id}`;
+								throw new Error(msg);
+							}
+						}
+					}
+				},
+			});
 
-				for (const name of missing) {
-					console.error(`	-${name}`);
-				}
-
-				throw new Error("Environment variable validation failed");
-			}
+			return null;
 		},
 
 		buildStart() {},
