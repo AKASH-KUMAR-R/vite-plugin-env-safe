@@ -1,0 +1,43 @@
+{
+	"name": "vite-plugin-env-safe",
+	"version": "1.0.0",
+	"description": "A plugin for validating env variables like in django",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "tsup src/index.ts --format cjs,esm --dts --external vite"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/AKASH-KUMAR-R/vite-plugin-env-safe.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "module",
+	"bugs": {
+		"url": "https://github.com/AKASH-KUMAR-R/vite-plugin-env-safe/issues"
+	},
+	"homepage": "https://github.com/AKASH-KUMAR-R/vite-plugin-env-safe#readme",
+	"peerDependenciesMeta": {
+		"vite": {
+			"optional": true
+		}
+	},
+	"peerDependencies": {
+		"vite": ">=5.0.0"
+	},
+	"devDependencies": {
+		"tsup": "^8.5.1",
+		"typescript": "^5.9.3",
+		"vite": "^7.2.4"
+	}
+}
