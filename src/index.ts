@@ -1,17 +1,21 @@
 import { type Plugin, loadEnv } from "vite";
 import { parse } from "@babel/parser";
 import { walk } from "estree-walker";
-import { type ValidationError } from "./types/error";
+import type { ValidationError } from "./types/error";
+import type { PluginOptions } from "./types/options";
 
-const EnvSafe = (): Plugin => {
+const EnvSafe = (options: PluginOptions = {}): Plugin => {
 	const checkedEnvVars = new Set<string>();
 
-	let definedEnvVars: Record<string, any> = {};
+	let definedEnvVars: Record<string, any>, optionalEnvVars: Array<string>;
+
+	definedEnvVars = {};
+	optionalEnvVars = options.optional || [];
 
 	const globalErrors = new Map<string, ValidationError[]>();
 
 	return {
-		name: "vite-plugin-safe-env",
+		name: "vite-plugin-env-safe",
 		enforce: "pre",
 
 		configResolved(config) {
@@ -68,6 +72,8 @@ const EnvSafe = (): Plugin => {
 
 							if (checkedEnvVars.has(varName)) return;
 
+							if (optionalEnvVars.includes(varName)) return;
+
 							if (varName in definedEnvVars) {
 								checkedEnvVars.add(varName);
 							} else {
@@ -105,7 +111,7 @@ const EnvSafe = (): Plugin => {
 					errorMessage.push(`\nIn file: ${file}`);
 					errors.forEach((err) => {
 						errorMessage.push(
-							`	❌ ${err.varName} (Line ${err.line}:${err.column})`
+							`\t❌ ${err.varName} (Line ${err.line}:${err.column})`
 						);
 					});
 				});
