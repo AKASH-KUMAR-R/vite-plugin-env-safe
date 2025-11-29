@@ -61,11 +61,20 @@ const EnvSafe = (): Plugin => {
 								].includes(varName)
 							)
 								return;
+
 							if (checkedEnvVars.has(varName)) return;
+
 							if (varName in definedEnvVars) {
 								checkedEnvVars.add(varName);
 							} else {
-								const msg = `❌ [EnvSafe] Missing Env Var: "${varName}" in ${id}`;
+								const line = node.loc
+									? node.loc.start.line
+									: "?";
+								const column = node.loc
+									? node.loc.start.column
+									: "?";
+								const msg = `❌ [EnvSafe] Missing Env Var: "${varName}" in ${id} at line ${line}, column ${column}`;
+
 								throw new Error(msg);
 							}
 						}
