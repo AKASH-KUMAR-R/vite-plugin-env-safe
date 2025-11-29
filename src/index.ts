@@ -1,11 +1,14 @@
 import { type Plugin, loadEnv } from "vite";
 import { parse } from "@babel/parser";
 import { walk } from "estree-walker";
+import { type ValidationError } from "./types/error";
 
 const EnvSafe = (): Plugin => {
 	const checkedEnvVars = new Set<string>();
 
 	let definedEnvVars: Record<string, any> = {};
+
+	const globalErrors = new Map<string, ValidationError[]>();
 
 	return {
 		name: "vite-plugin-safe-env",
@@ -25,7 +28,8 @@ const EnvSafe = (): Plugin => {
 				return;
 			}
 
-			let ast;
+			let ast,
+				fileErrors: ValidationError[] = [];
 
 			try {
 				ast = parse(code, {
@@ -73,19 +77,47 @@ const EnvSafe = (): Plugin => {
 								const column = node.loc
 									? node.loc.start.column
 									: "?";
-								const msg = `❌ [EnvSafe] Missing Env Var: "${varName}" in ${id} at line ${line}, column ${column}`;
-
-								throw new Error(msg);
+								fileErrors.push({
+									varName: varName,
+									line,
+									column,
+								});
 							}
 						}
 					}
 				},
 			});
 
+			if (fileErrors.length > 0) {
+				globalErrors.set(id, fileErrors);
+			}
+
 			return null;
 		},
 
-		buildStart() {},
+		buildEnd() {
+			if (globalErrors.size > 0) {
+				const errorMessage: string[] = [
+					"\n[EnvSafe] Detected missing environment variables:",
+				];
+
+				globalErrors.forEach((errors, file) => {
+					errorMessage.push(`\nIn file: ${file}`);
+					errors.forEach((err) => {
+						errorMessage.push(
+							`	❌ ${err.varName} (Line ${err.line}:${err.column})`
+						);
+					});
+				});
+
+				errorMessage.push(
+					"\nPlease ensure all environment variables are defined.\n"
+				);
+
+				const finalMessage = errorMessage.join("\n");
+				this.error(finalMessage);
+			}
+		},
 	};
 };
 
