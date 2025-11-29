@@ -36,6 +36,8 @@
 		"vite": ">=5.0.0"
 	},
 	"devDependencies": {
+		"@babel/parser": "^7.28.5",
+		"estree-walker": "^3.0.3",
 		"tsup": "^8.5.1",
 		"typescript": "^5.9.3",
 		"vite": "^7.2.4"
