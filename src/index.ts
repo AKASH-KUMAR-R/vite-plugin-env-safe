@@ -4,7 +4,9 @@ import { walk } from "estree-walker";
 import type { ValidationError } from "./types/error";
 import type { PluginOptions } from "./types/options";
 
-const EnvSafe = (options: PluginOptions = {}): Plugin => {
+const EnvSafe = (
+	options: PluginOptions = { throwErrorOnMissing: true }
+): Plugin => {
 	const checkedEnvVars = new Set<string>();
 
 	let definedEnvVars: Record<string, any>, optionalEnvVars: Array<string>;
@@ -121,7 +123,12 @@ const EnvSafe = (options: PluginOptions = {}): Plugin => {
 				);
 
 				const finalMessage = errorMessage.join("\n");
-				this.error(finalMessage);
+
+				if (options.throwErrorOnMissing) {
+					this.error(finalMessage);
+				} else {
+					this.warn(finalMessage);
+				}
 			}
 		},
 	};

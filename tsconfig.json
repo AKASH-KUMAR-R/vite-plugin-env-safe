@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"module": "esnext",
 		"target": "esnext",
-		"types": ["vite"],
+		"types": ["vite", "node"],
 		"moduleResolution": "bundler",
 
 		"declaration": true,
