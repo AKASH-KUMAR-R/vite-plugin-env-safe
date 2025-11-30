@@ -117,6 +117,7 @@ const EnvSafe = (userOptions: PluginOptions = {}): Plugin => {
 			let match: RegExpExecArray | null = null,
 				shouldParse = false;
 
+			// Soft check to see if import.meta.env is present outside comments/strings
 			while ((match = smartGuard.exec(code)) !== null) {
 				// If any of the first three groups match, it's a comment or string
 				if (match[4]) {
@@ -192,7 +193,11 @@ const EnvSafe = (userOptions: PluginOptions = {}): Plugin => {
 
 			if (fileErrors.length > 0) {
 				// Allows to throw errors during dev server as well
-				if (config.command === "serve" && options.throwErrorOnMissing) {
+				if (
+					config.command === "serve" &&
+					options.throwErrorOnMissing &&
+					options.runtimeChecks
+				) {
 					const errorMessage: string[] = fileErrors.map(
 						(e) => `\t❌ ${e.varName} (Line ${e.line}:${e.column})`
 					);
