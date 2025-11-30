@@ -1,6 +1,6 @@
 {
 	"name": "vite-plugin-env-safe",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Zero-config environment variable validation for Vite projects using AST scanning.",
 	"main": "dist/index.cjs",
 	"module": "dist/index.js",
