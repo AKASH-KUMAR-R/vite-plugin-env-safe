@@ -4,6 +4,7 @@
 		"target": "esnext",
 		"types": ["vite", "node"],
 		"moduleResolution": "bundler",
+		"esModuleInterop": true,
 
 		"declaration": true,
 		"declarationMap": true,
@@ -12,6 +13,7 @@
 		"strict": true,
 		"skipLibCheck": true,
 		"verbatimModuleSyntax": true,
+		"outDir": "dist",
 
 		"noUncheckedIndexedAccess": true,
 		"exactOptionalPropertyTypes": true
