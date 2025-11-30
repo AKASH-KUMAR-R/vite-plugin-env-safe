@@ -47,11 +47,13 @@
 	"peerDependencies": {
 		"vite": ">=5.0.0"
 	},
-	"devDependencies": {
-		"@babel/parser": "^7.28.5",
-		"@types/node": "^24.10.1",
+	"dependencies": {
 		"estree-walker": "^3.0.3",
+		"@babel/parser": "^7.28.5"
+	},
+	"devDependencies": {
 		"tsup": "^8.5.1",
+		"@types/node": "^24.10.1",
 		"typescript": "^5.9.3",
 		"vite": "^7.2.4"
 	}
