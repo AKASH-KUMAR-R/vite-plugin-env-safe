@@ -1,0 +1,34 @@
+name: Publish Package to npm
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            id-token: write # Required for provenance (optional but recommended)
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            # Setup Node.js and configure the registry
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  registry-url: "https://registry.npmjs.org"
+
+            # Install dependencies (use npm ci for clean install)
+            - name: Install Dependencies
+              run: npm ci
+
+            # Publish to npm
+            # --provenance adds build traceability (highly recommended)
+            - name: Publish
+              run: npm publish --provenance --access public
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
