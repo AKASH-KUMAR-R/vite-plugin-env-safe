@@ -26,10 +26,6 @@ jobs:
             - name: Install Dependencies
               run: npm ci
 
-            # Build the Vite plugin
-            - name: Build
-              run: npm run build
-
             # Publish to npm
             # --provenance adds build traceability (highly recommended)
             - name: Publish
